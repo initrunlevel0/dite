@@ -8,15 +8,15 @@ Process based shared web-hosting platform. Written in Node.js. CURRENTLY STILL O
 Do not use this thing for production. But for testing purpose, here you need to prepare :
 
 * A full sandboxed Virtual Linux (Debian based recommended) OS with :
-    * Working latest node.js ({{{node}}} command)
+    * Working latest node.js ({{node}} command)
     * Latest git
     * nginx
 
 
 # Running the server
 
-* {{{node application.js}}} to run management server.
-* {{{node daemon.js}}} to run all application node.
+* {{node application.js}} to run management server.
+* {{node daemon.js}} to run all application node.
 
 # How this thing works
 
