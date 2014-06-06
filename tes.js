@@ -41,7 +41,7 @@ tes['user.create'] = function() {
 tes['user.get'] = function() {
     var database = require('./database');
     database.getUser(tesUserName, function(user) {
-        console.log(tesUserName);
+        console.log(user);
     })
 }
 

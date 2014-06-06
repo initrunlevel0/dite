@@ -48,7 +48,7 @@ var newApplication = function(userName, applicationName, applicationType, sshPub
                     dnsCname: dnsCname
                 };
 
-                userData.application.push(applicationData);
+                userData.applications.push(applicationData);
                 userData.save(function(err) {
                     if(err) callbackError('Something wrong with your MongoDB.');
                     else callback(userData);
