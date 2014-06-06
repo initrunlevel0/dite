@@ -20,6 +20,7 @@ Do not use this thing for production. But for testing purpose, here you need to 
 
 # How this thing works
 
-Dite is actually served as usual web hosting server. But instead of hosting *.php or *.html file in some directory, it just run a process which server as web server socket. Every web server application is assigned with random unique port in which NGINX would take a part to forward a request which match the application CNAME domain.
+Dite is actually served just like web hosting server. But instead of hosting *.php or *.html file in some directory for each user, it runs a process for every application which serve as web server socket application.
+Every process then assigned with random unique port in which NGINX would take a part to forward a request to the designated process which match the application CNAME domain.
 
 

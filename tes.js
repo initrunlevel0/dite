@@ -18,6 +18,15 @@ tes['git'] = function() {
     })
 }
 
+tes['node.configure'] = function() {
+    var nodeAppConfigurator = require('./nodeAppConfigurator');
+    nodeAppConfigurator.configureApp('/home/wira.nasigoreng', 1001, 1001, function() {
+        console.log('Done');
+    }, function(errMessage) {
+        console.log(errMessage);
+    })
+}
+
 // Run tes from selected
 tes[process.argv[2]]();
 

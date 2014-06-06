@@ -23,12 +23,13 @@ module.exports.configureApp = function(homeDir, sshPublicKey, uid, gid, callback
                     fs.mkdir(homeDir + '/app.git', function(err) {
                         // "git init --bare"
                         var gitInit = childProcess.spawn('/usr/bin/git', ['init', '--bare'], { cwd: homeDir + '/app.git'})
+                        gitInit.stdout.on('data', function(data) { console.log(data.toString() )})
                         gitInit.on('exit', function(code, signal) {
                             // "git clone app.git"
-                            var gitClone = childProcess.spawn('/usr/bin/git', ['clone', 'app.git'], { cwd: homeDir });
+                            var gitClone = childProcess.spawn('/usr/bin/git', ['clone', 'app.git'], { cwd: homeDir});
                             gitClone.on('exit', function(code, signal) {
                                 // Finally, chown all directory to this user
-                                var chown = childProcess.spawn('chown', [uid + ':' + gid, '-R', homeDir + '/.ssh', homeDir + '/app.git']);
+                                var chown = childProcess.spawn('chown', [uid + ':' + gid, '-R', homeDir + '/.ssh', homeDir + '/app.git', homeDir + '/app']);
                                 chown.on('exit', function(code, signal) {
                                     callback();
                                 });
