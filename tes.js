@@ -27,6 +27,37 @@ tes['node.configure'] = function() {
     })
 }
 
+var tesUserName = "wira";
+var tesUserPassword = "wira";
+tes['user.create'] = function() {
+    var userManager = require('./userManager');
+    userManager.newUser(tesUsername, tesUserPassword, function(newUser) {
+        console.log(newUser);
+    }, function(err) {
+        console.log(err);
+    })
+}
+
+tes['user.get'] = function() {
+    var database = require('./database');
+    database.getUser(tesUserName, function(user) {
+        console.log(tesUserName);
+    })
+}
+
+var tesAppName = "pertamax";
+var tesAppSSHKey = "just testing";
+var tesAppCname = "pertamax.wirama.web.id"
+
+tes['node.appCreate'] = function() {
+    var appManager = require('./appManager');
+    appManager.newApplication(tesUserName, tesAppName, 'node', tesAppSSHKey, tesAppCname, function(userData) {
+        console.log('Check check, are you sure this is success?');
+        console.log(userData);
+    }, function(errMessage) {
+        console.log(errMessage);
+    });
+}
 // Run tes from selected
 tes[process.argv[2]]();
 

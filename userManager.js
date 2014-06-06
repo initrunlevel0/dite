@@ -20,7 +20,7 @@ var newUser = function(userName, password, callback, callbackError) {
             var newUser = new database.User({userName: userName, password: hashedPassword});
             newUser.save(function(err) {
                 if(err) callbackError('Something wrong with your MongoDB.');
-                else callback();
+                else callback(newUser);
             });
         });
     });

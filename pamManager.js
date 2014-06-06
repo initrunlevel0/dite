@@ -29,7 +29,7 @@ module.exports.createUserAndGroup = function(userName, callback, callbackError) 
             });
 
             idGidProcess.on('close', function() {
-                callback(uid, gid, '/home/' + userName);
+                callback(parseInt(uid), parseInt(gid), '/home/' + userName);
             });
         });
     });

@@ -30,3 +30,21 @@ module.exports.configureApp = function(homeDir, uid, gid, callback, callbackErro
         });
     });
 }
+
+module.exports.gettingReadyApp = function(homeDir, uid, gid, callback, callbackError) {
+    // npm install the directory
+    var npm = childProcess.spawn('npm', ['install'], { cwd: homeDir + '/app', uid: uid, gid: gid});
+    npm.on('exit', function(code, signal) {
+        if(code != 0) {
+            callbackError();
+        } else {
+            callback();
+        }
+    })
+}
+
+module.exports.readPackageJson = function(homeDir, callback) {
+    fs.readFile(homeDir + '/app/package.json', function(err, data) {
+        callback(JSON.parse(data));
+    });
+}

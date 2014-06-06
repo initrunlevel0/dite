@@ -36,7 +36,7 @@ var setupEnvironment = function(homeDir, sshPublicKey, uid, gid, applicationType
 
 var newApplication = function(userName, applicationName, applicationType, sshPublicKey, dnsCname, callback, callbackError) {
     database.getUser(userName, function(userData) {
-        pamManager.createUserAndGroup(userName + "." + applicationName, dnsCname, function(uid, gid, homeDirectory) {
+        pamManager.createUserAndGroup(userName + "." + applicationName, function(uid, gid, homeDirectory) {
             setupEnvironment(homeDirectory, sshPublicKey, uid, gid, applicationType, function() {
                 var applicationData = {
                     applicationType: applicationType,
@@ -51,7 +51,7 @@ var newApplication = function(userName, applicationName, applicationType, sshPub
                 userData.application.push(applicationData);
                 userData.save(function(err) {
                     if(err) callbackError('Something wrong with your MongoDB.');
-                    else callback();
+                    else callback(userData);
                 })
             }, function(errMessage) {
                 callbackError(errMessage);
@@ -64,6 +64,7 @@ var newApplication = function(userName, applicationName, applicationType, sshPub
     });
 };
 
+module.exports.newApplication = newApplication;
 
 
 
