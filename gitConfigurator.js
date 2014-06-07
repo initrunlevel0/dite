@@ -9,15 +9,15 @@
 
 var childProcess = require('child_process')
 var fs = require('fs');
-module.exports.configureApp = function(homeDir, sshPublicKey, uid, gid, callback, callbackError) {
+module.exports.configureApp = function(homeDir, sshPublicKey, uid, gid, callback) {
     // Step by step to configure
     // 1. Create ~/.ssh directory
     fs.mkdir(homeDir + '/.ssh', function(err) {
         // Create file /.ssh/authorized_keys
         fs.writeFile(homeDir + '/.ssh/authorized_keys', sshPublicKey, function(err) {
-            if(err) callbackError(err);
+            if(err) callback(err);
             else {
-                if(err) callbackError(err);
+                if(err) callback(err);
                 else {
                     // Create app.git directory
                     fs.mkdir(homeDir + '/app.git', function(err) {
@@ -31,7 +31,7 @@ module.exports.configureApp = function(homeDir, sshPublicKey, uid, gid, callback
                                 // Finally, chown all directory to this user
                                 var chown = childProcess.spawn('chown', [uid + ':' + gid, '-R', homeDir + '/.ssh', homeDir + '/app.git', homeDir + '/app']);
                                 chown.on('exit', function(code, signal) {
-                                    callback();
+                                    callback(null);
                                 });
                             })
                         })

@@ -9,7 +9,7 @@
 
 var childProcess = require('child_process');
 
-module.exports.createUserAndGroup = function(userName, callback, callbackError) {
+module.exports.createUserAndGroup = function(userName, callback) {
     var uid = null;
     var gid = null;
     var userAddProcess = childProcess.spawn('adduser', ['--force-badname', '--disabled-password', '--gecos', "", userName]);
@@ -29,7 +29,7 @@ module.exports.createUserAndGroup = function(userName, callback, callbackError) 
             });
 
             idGidProcess.on('close', function() {
-                callback(parseInt(uid), parseInt(gid), '/home/' + userName);
+                callback(null, parseInt(uid), parseInt(gid), '/home/' + userName);
             });
         });
     });

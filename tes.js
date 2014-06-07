@@ -9,39 +9,19 @@
 
 var tes = {};
 
-tes['git'] = function() {
-    var gitConfigurator = require('./gitConfigurator');
-    gitConfigurator.configureApp('/home/wira.nasigoreng', 'ssss', 1001, 1001, function() {
-        console.log('Done');
-    }, function(errMessage) {
-        console.log(errMessage);
-    })
-}
-
-tes['node.configure'] = function() {
-    var nodeAppConfigurator = require('./nodeAppConfigurator');
-    nodeAppConfigurator.configureApp('/home/wira.nasigoreng', 1001, 1001, function() {
-        console.log('Done');
-    }, function(errMessage) {
-        console.log(errMessage);
-    })
-}
-
 var tesUserName = "wira";
 var tesUserPassword = "wira";
 tes['user.create'] = function() {
     var userManager = require('./userManager');
-    userManager.newUser(tesUsername, tesUserPassword, function(newUser) {
-        console.log(newUser);
-    }, function(err) {
-        console.log(err);
-    })
+    userManager.newUser(tesUserName, tesUserPassword, function(err, newUser) {
+        console.log(err, newUser);
+    });
 }
 
 tes['user.get'] = function() {
     var database = require('./database');
-    database.getUser(tesUserName, function(user) {
-        console.log(user);
+    database.getUser(tesUserName, function(err, user) {
+        console.log(err, user);
     })
 }
 
@@ -51,12 +31,15 @@ var tesAppCname = "pertamax.wirama.web.id"
 
 tes['node.appCreate'] = function() {
     var appManager = require('./appManager');
-    appManager.newApplication(tesUserName, tesAppName, 'node', tesAppSSHKey, tesAppCname, function(userData) {
-        console.log('Check check, are you sure this is success?');
-        console.log(userData);
-    }, function(errMessage) {
-        console.log(errMessage);
+    appManager.newApplication(tesUserName, tesAppName, 'node', tesAppSSHKey, tesAppCname, function(err, userData) {
+        console.log(err, userData);
     });
+}
+
+tes['tes.list'] = function() {
+    for (i in tes) {
+        console.log(i);
+    }
 }
 // Run tes from selected
 tes[process.argv[2]]();

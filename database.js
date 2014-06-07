@@ -26,7 +26,7 @@ var applicationSchema = new mongoose.Schema({
 var userSchema = new mongoose.Schema ({
     userName: String,
     password: String,
-    application: [applicationSchema]
+    applications: [applicationSchema]
 });
 
 
@@ -34,12 +34,12 @@ var User = mongoose.model('User', userSchema)
 
 module.exports.User = User;
 
-var getUser = function(userName, callback, callbackError) {
+var getUser = function(userName, callback) {
     User.findOne({userName: userName}, function(err, resultUser) {
-        if(err) callbackError("Something wrong with your MongoDB.");
+        if(err) callback(err);
         else {
-            if (resultUser == null) callbackError("The user doesn't exist.");
-            else callback(resultUser);
+            if (resultUser == null) callback(new Error("The user doesn't exist."));
+            else callback(err, resultUser);
         };
     });
 };

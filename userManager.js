@@ -11,32 +11,31 @@ var database = require('./database');
 var helper = require('./helper');
 
 
-var newUser = function(userName, password, callback, callbackError) {
+var newUser = function(userName, password, callback) {
     helper.getHashedPassword(password, function(hashedPassword) {
         // Check if user is exist
-        database.getUser(userName, function(resultUser) {
-            callbackError('The username is not available.')
-        }, function(errMessage) {
-            var newUser = new database.User({userName: userName, password: hashedPassword});
-            newUser.save(function(err) {
-                if(err) callbackError('Something wrong with your MongoDB.');
-                else callback(newUser);
-            });
+        database.getUser(userName, function(err) {
+            if(err) {
+                var newUser = new database.User({userName: userName, password: hashedPassword});
+                newUser.save(function(err) {
+                    callback(err, newUser);
+                });
+            } else {
+                callback(new Error('The user is not available'));
+            }
         });
     });
 };
 
 module.exports.newUser = newUser;
 
-var authUser = function(userName, password, callback, callbackError) {
+var authUser = function(userName, password, callback) {
     helper.getHashedPassword(password, function(hashedPassword) {
-        database.getUser(userName, function(resultUser) {
-            if(resultUser.password == hashedPassword) callback();
+        database.getUser(userName, function(err, resultUser) {
+            if(resultUser.password == hashedPassword) callback(null, true);
             else {
-                callbackError('Your username or password is not correct.')
+                callback(new Error('Your username or password is not correct.'), false);
             }
-        }, function(errMessage) {
-            callbackError(errMessage);
         });
     });
 };
@@ -44,10 +43,9 @@ var authUser = function(userName, password, callback, callbackError) {
 module.exports.authUser = authUser;
 
 
-var getAllUsers = function(callback, callbackError) {
+var getAllUsers = function(callback) {
     database.User.find({}, function(err, result) {
-        if(err) callbackError('Something wrong with your MongoDB.');
-        callback(result);
+        callback(err, result);
     });
 };
 

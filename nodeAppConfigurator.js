@@ -10,7 +10,7 @@
 var childProcess = require('child_process');
 var fs = require('fs-extra');
 
-module.exports.configureApp = function(homeDir, uid, gid, callback, callbackError) {
+module.exports.configureApp = function(homeDir, uid, gid, callback) {
     // Step by step to configure
     // Commit a node.js based sample apps from sample/node
     fs.copy(__dirname + "/sample/node", homeDir + '/app', function(err) {
@@ -23,7 +23,7 @@ module.exports.configureApp = function(homeDir, uid, gid, callback, callbackErro
                 gitCommit.on('exit', function() {
                     var gitPush = childProcess.spawn('git', ['push', 'origin', 'master'], {cwd: homeDir + '/app', uid:uid, gid:gid})
                     gitPush.on('exit', function() {
-                        callback();
+                        callback(null);
                     });
                 });
             });
@@ -31,20 +31,20 @@ module.exports.configureApp = function(homeDir, uid, gid, callback, callbackErro
     });
 }
 
-module.exports.gettingReadyApp = function(homeDir, uid, gid, callback, callbackError) {
+module.exports.gettingReadyApp = function(homeDir, uid, gid, callback) {
     // npm install the directory
     var npm = childProcess.spawn('npm', ['install'], { cwd: homeDir + '/app', uid: uid, gid: gid});
     npm.on('exit', function(code, signal) {
         if(code != 0) {
-            callbackError();
+            callback(new Error('NPM Install return != 0, seems your app won\'t rull well'))
         } else {
-            callback();
+            callback(null);
         }
     })
 }
 
 module.exports.readPackageJson = function(homeDir, callback) {
     fs.readFile(homeDir + '/app/package.json', function(err, data) {
-        callback(JSON.parse(data));
+        callback(null, JSON.parse(data));
     });
 }

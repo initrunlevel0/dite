@@ -60,6 +60,7 @@ userManager.getAllUsers(function(users) {
 
         }
     }
+    nginxConfigurator.reloadNginx();
 });
 
 // Socket IO communication implementation
