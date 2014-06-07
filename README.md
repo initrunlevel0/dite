@@ -34,3 +34,5 @@ Every process then assigned with random unique port in which NGINX would take a 
     * Run `sudo node daemon.js`.
     * Open `http://pertamax.wirama.web.id` from your browser.
     * `Hello World`
+
+![alt tag](http://raw.githubusercontent.com/initrunlevel0/dite/master/img/readme/running.png)
