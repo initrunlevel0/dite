@@ -28,9 +28,9 @@ module.exports.createNginxConfig = function(port, cname, callback, callbackError
 };
 
 module.exports.reloadNginx = function(callback) {
-    var nginx = childProcess.spawn('server', ['nginx', 'reload']);
+    var nginx = childProcess.spawn('service', ['nginx', 'reload']);
     nginx.on('exit', function() {
-        callback();
+        if(callback) callback();
     });
 
 }

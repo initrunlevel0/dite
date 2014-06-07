@@ -31,7 +31,7 @@ module.exports.configureApp = function(homeDir, uid, gid, callback) {
     });
 }
 
-module.exports.gettingReadyApp = function(homeDir, uid, gid, callback) {
+module.exports.gettingReadyApp = function(homeDir, uid, gid, logStream, callback) {
     // npm install the directory
     var npm = childProcess.spawn('npm', ['install'], { cwd: homeDir + '/app', uid: uid, gid: gid});
     npm.on('exit', function(code, signal) {
@@ -40,7 +40,19 @@ module.exports.gettingReadyApp = function(homeDir, uid, gid, callback) {
         } else {
             callback(null);
         }
-    })
+    });
+
+    npm.stdout.on('data', function(stream) {
+        if(logStream) {
+            logStream.write('NPM STDOUT: ' + stream.toString());
+        }
+    });
+
+    npm.stdout.on('data', function(stream) {
+        if(logStream) {
+            logStream.write('NPM STDERR: ' + stream.toString());
+        }
+    });
 }
 
 module.exports.readPackageJson = function(homeDir, callback) {

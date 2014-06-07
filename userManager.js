@@ -44,7 +44,7 @@ module.exports.authUser = authUser;
 
 
 var getAllUsers = function(callback) {
-    database.User.find({}, function(err, result) {
+    database.User.find({}).lean().exec(function(err, result) {
         callback(err, result);
     });
 };
