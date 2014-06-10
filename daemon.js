@@ -17,6 +17,7 @@ var fs = require('fs');
 
 var theProcess = {};
 var theStatus = {};
+var designatedPort = 10000;
 var startApplication = function(appData) {
     var logStream = fs.createWriteStream(__dirname + '/log/' + appData.systemUserName + '.log', { flags: 'w', encoding: 'utf8'});
     logStream.write('Initializing app: ' + appData.systemUserName + '\n');
@@ -90,22 +91,17 @@ var stopApplication = function(appData, callback) {
 
 var restartApplication = function(appData) {
     stopApplication(appData, function() {
-        startApplication();
+        startApplication(appData);
     });
 };
 
 var getApplicationStatus = function(appData, callback) {
-    if(theStatus[appData.systemUserName]) {
-        callback(theStatus[appData.systemUserName]);
-    } else {
-        callback(false);
-    }
+    callback(theStatus[appData.systemUserName]);
 };
 
 
 // MAIN APPLICATION
 userManager.getAllUsers(function(err, users) {
-    var designatedPort = 10000;
     for (var i in users) {
         for(var j in users[i].applications) {
             // Per application, let's go
@@ -117,23 +113,26 @@ userManager.getAllUsers(function(err, users) {
 });
 
 // SOCKET CONNECTION
-var daemonServer = net.createServer(function(c) {
-    c.on('connection', function(sock) {
-        sock.on('data', function(buf) {
-            var command = JSON.parse(buf.toString());
-            if(command.cmd == "start") {
-                startApplication(command.appData);
-            } else(command.cmd == "stop") {
-                stopApplication(command.appData);
-            } else (command.cmd == "restart") {
-                restartApplication(command.appDara);
-            } else (command.cmd == "status") {
-                getApplicationStatus(command.appData, function(result) {
-                    sock.send(JSON.stringify({result: result}));
-                })
-            }
-        })
-    })
+var daemonServer = net.createServer(function(sock) {
+    console.log('Connected with daemon Client')
+    sock.on('data', function(buf) {
+        console.log('Daemon get command: ' + buf.toString());
+        var command = JSON.parse(buf.toString());
+        if(command.cmd == "start") {
+            startApplication(command.appData);
+            sock.write(JSON.stringify({}));
+        } else if(command.cmd == "stop") {
+            stopApplication(command.appData);
+            sock.write(JSON.stringify({}));
+        } else if(command.cmd == "restart") {
+            restartApplication(command.appDara);
+            sock.write(JSON.stringify({}));
+        } else if(command.cmd == "status") {
+            getApplicationStatus(command.appData, function(result) {
+                sock.write(JSON.stringify({result: result}));
+            })
+        }
+    });
 });
 
-daemonServer.listen(888);
+daemonServer.listen(50000);

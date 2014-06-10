@@ -10,6 +10,7 @@
 var express = require('express');
 //var socketio = require('socket.io');
 var http = require('http');
+var net = require('net');
 
 // Internal library requirement
 var userManager = require('./userManager');
@@ -100,7 +101,18 @@ app.get('/api/aplikasi', function(req, res) {
             res.send(applications);
         }
     });
+});
 
+app.get('/api/aplikasi/:appName', function(req, res) {
+    database.getUser(req.session.userName, function(err, resultUser) {
+        if(!err) {
+            resultUser.applications.forEach(function(application) {
+                if(application.systemUserName == req.params.appName) {
+                    res.send(application);
+                }
+            })
+        }
+    });
 });
 
 app.post('/api/aplikasi', function(req, res) {
@@ -117,6 +129,28 @@ app.put('/api/aplikasi', function(req, res) {
     appManager.editApplication(req.session.userName, input.applicationName, input.sshPublicKey, input.dnsCname, function(err) {
         if(err) res.send({error: err});
         else res.send(applicationData);
+    });
+});
+
+// Application Control
+var clientDaemon = net.connect({port:50000});
+app.get('/api/control/:appName/:command', function(req, res) {
+    res.setHeader("Content-Type", "application/json");
+    database.getUser(req.session.userName, function(err, resultUser) {
+        if(!err) {
+            resultUser.applications.forEach(function(application) {
+                if(application.systemUserName == req.params.appName) {
+                    var command = {
+                        cmd: req.params.command,
+                        appData: application
+                    }
+                    clientDaemon.write(JSON.stringify(command));
+                    clientDaemon.on('data', function(data) {
+                        res.end(data.toString());
+                    });
+                }
+            })
+        }
     });
 });
 
