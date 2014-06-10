@@ -32,9 +32,13 @@ module.exports.newUser = newUser;
 var authUser = function(userName, password, callback) {
     helper.getHashedPassword(password, function(hashedPassword) {
         database.getUser(userName, function(err, resultUser) {
-            if(resultUser.password == hashedPassword) callback(null, true);
-            else {
-                callback(new Error('Your username or password is not correct.'), false);
+            if(!err) {
+                if(resultUser.password == hashedPassword) callback(null, true);
+                else {
+                    callback(new Error('Your username or password is not correct.'), false);
+                }
+            } else {
+                callback(err);
             }
         });
     });

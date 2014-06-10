@@ -33,7 +33,7 @@ module.exports.configureApp = function(homeDir, uid, gid, callback) {
 
 module.exports.gettingReadyApp = function(homeDir, uid, gid, logStream, callback) {
     // npm install the directory
-    var npm = childProcess.spawn('npm', ['install'], { cwd: homeDir + '/app', uid: uid, gid: gid});
+    var npm = childProcess.spawn('npm', ['install'], { cwd: homeDir + '/app', uid: uid, gid: gid, env: {} });
     npm.on('exit', function(code, signal) {
         if(code != 0) {
             callback(new Error('NPM Install return != 0, seems your app won\'t rull well'))
@@ -44,13 +44,13 @@ module.exports.gettingReadyApp = function(homeDir, uid, gid, logStream, callback
 
     npm.stdout.on('data', function(stream) {
         if(logStream) {
-            logStream.write('NPM STDOUT: ' + stream.toString());
+            logStream.write('NPM STDOUT: ' + stream.toString() +'\n');
         }
     });
 
-    npm.stdout.on('data', function(stream) {
+    npm.stderr.on('data', function(stream) {
         if(logStream) {
-            logStream.write('NPM STDERR: ' + stream.toString());
+            logStream.write('NPM STDERR: ' + stream.toString() + '\n');
         }
     });
 }

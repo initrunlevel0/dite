@@ -9,12 +9,23 @@
 
 var childProcess = require('child_process')
 var fs = require('fs');
+var writeSshPublicKey = function(homeDir, sshPublicKey, uid, gid, callback) {
+    fs.writeFile(homeDir + '/.ssh/authorized_keys', sshPublicKey, function(err) {
+        var chown = childProcess.spawn('chown', [uid + ':' + gid, '-R', homeDir + '/.ssh']);
+        chown.on('exit', function() {
+            callback();
+        });
+    });
+}
+
+module.exports.writeSshPublicKey = writeSshPublicKey;
+
 module.exports.configureApp = function(homeDir, sshPublicKey, uid, gid, callback) {
     // Step by step to configure
     // 1. Create ~/.ssh directory
     fs.mkdir(homeDir + '/.ssh', function(err) {
         // Create file /.ssh/authorized_keys
-        fs.writeFile(homeDir + '/.ssh/authorized_keys', sshPublicKey, function(err) {
+        writeSshPublicKey(homeDir, sshPublicKey, uid, gid, function() {
             if(err) callback(err);
             else {
                 if(err) callback(err);
@@ -29,7 +40,7 @@ module.exports.configureApp = function(homeDir, sshPublicKey, uid, gid, callback
                             var gitClone = childProcess.spawn('/usr/bin/git', ['clone', 'app.git'], { cwd: homeDir});
                             gitClone.on('exit', function(code, signal) {
                                 // Finally, chown all directory to this user
-                                var chown = childProcess.spawn('chown', [uid + ':' + gid, '-R', homeDir + '/.ssh', homeDir + '/app.git', homeDir + '/app']);
+                                var chown = childProcess.spawn('chown', [uid + ':' + gid, '-R', homeDir + '/app.git', homeDir + '/app']);
                                 chown.on('exit', function(code, signal) {
                                     callback(null);
                                 });

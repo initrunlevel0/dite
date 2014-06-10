@@ -33,6 +33,27 @@ var setupEnvironment = function(homeDir, sshPublicKey, uid, gid, applicationType
 
 };
 
+var editApplication = function(userName, applicationName, sshPublicKey, dnsCname, callback) {
+    var gitConfigurator = require('./gitConfigurator');
+    database.getUser(userName, function(err, userData) {
+        // Find the application designated application
+        userData.applications.forEach(function(app) {
+            if(app.systemUserName == userName + "." + applicationName) {
+                // Change sshPublicKey
+                gitConfigurator.writeSshPublicKey(homeDir, sshPublicKey, app.systemUID, app.systemGID, function() {
+                    app.sshPublicKey = sshPublicKey;
+                    app.dnsCname = dnsCname;
+                    userData.save(function(err) {
+                        callback(err);
+                    });
+                });
+            }
+        });
+    });
+};
+
+
+module.exports.editApplication = editApplication;
 var newApplication = function(userName, applicationName, applicationType, sshPublicKey, dnsCname, callback) {
     database.getUser(userName, function(err, userData) {
         if(err) callback(err);
@@ -56,7 +77,7 @@ var newApplication = function(userName, applicationName, applicationType, sshPub
                             userData.applications.push(applicationData);
                             userData.save(function(err) {
                                 if(err) callback(err);
-                                else callback(null, userData);
+                                else callback(null, applicationData);
                             });
                         }
                     });

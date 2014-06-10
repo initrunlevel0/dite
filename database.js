@@ -34,14 +34,24 @@ var User = mongoose.model('User', userSchema)
 
 module.exports.User = User;
 
-var getUser = function(userName, callback) {
-    User.findOne({userName: userName}, function(err, resultUser) {
-        if(err) callback(err);
-        else {
-            if (resultUser == null) callback(new Error("The user doesn't exist."));
-            else callback(err, resultUser);
-        };
-    });
+var getUser = function(userName, callback, plainData) {
+    if(!plainData) {
+        User.findOne({userName: userName}, function(err, resultUser) {
+            if(err) callback(err);
+            else {
+                if (resultUser == null) callback(new Error("The user doesn't exist."));
+                else callback(err, resultUser);
+            };
+        });
+    } else {
+        User.findOne({userName: userName}).lean().exec(function(err, resultUser) {
+            if(err) callback(err);
+            else {
+                if (resultUser == null) callback(new Error("The user doesn't exist."));
+                else callback(err, resultUser);
+            };
+        });
+    }
 };
 
 module.exports.getUser = getUser;
