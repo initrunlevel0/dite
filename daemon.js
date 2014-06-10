@@ -27,55 +27,73 @@ var startApplication = function(appData) {
     nginxConfigurator.createNginxConfig(designatedPort, appData.dnsCname, function() {
         nginxConfigurator.reloadNginx();
 
-        // Switch per applicationType
-        switch(appData.applicationType) {
-            case "node":
-                var nodeAppConfigurator = require('./nodeAppConfigurator');
+        // Git pull dulu
+        logStream.write('GIT PULLing: START\n');
+        var gitPull = childProcess.spawn('git', ['pull'], {
+            cwd: appData.systemHomeDir + '/app',
+            uid: parseInt(appData.systemUID),
+            gid: parseInt(appData.systemGID),
+            env: {
+            }
+        });
+        gitPull.stdout.on('data', function(stream) {
+            logStream.write('GIT PULLing: ' + stream + '\n');
+        });
+        logStream.write('GIT PULLing: DONE\n');
 
-                // npm install
-                logStream.write('Running npm install\n');
-                nodeAppConfigurator.gettingReadyApp(appData.systemHomeDir, parseInt(appData.systemUID), parseInt(appData.systemGID), logStream, function(err) {
-                    logStream.write('npm install done\n');
-                    // Start the application, first time
-                    theProcess[appData.systemUserName] = childProcess.spawn('node', ['app.js'], {
-                        cwd: appData.systemHomeDir + '/app',
-                        uid: parseInt(appData.systemUID),
-                        gid: parseInt(appData.systemGID),
-                        env: {
-                            DITE_PORTNUM: designatedPort
-                        }
-                    });
+        gitPull.on('exit', function() {
 
-                    theStatus[appData.systemUserName] = true;
+            // Switch per applicationType
+            switch(appData.applicationType) {
+                case "node":
+                    var nodeAppConfigurator = require('./nodeAppConfigurator');
 
-                    // Increment designatedPort
-                    designatedPort++;
+                    // npm install
+                    logStream.write('Running npm install\n');
+                    nodeAppConfigurator.gettingReadyApp(appData.systemHomeDir, parseInt(appData.systemUID), parseInt(appData.systemGID), logStream, function(err) {
+                        logStream.write('npm install done\n');
+                        // Start the application, first time
+                        theProcess[appData.systemUserName] = childProcess.spawn('node', ['app.js'], {
+                            cwd: appData.systemHomeDir + '/app',
+                            uid: parseInt(appData.systemUID),
+                            gid: parseInt(appData.systemGID),
+                            env: {
+                                DITE_PORTNUM: designatedPort
+                            }
+                        });
 
-                    logStream.write('Spawning app.js Node application for domain ' + appData.dnsCname + '\n');
+                        theStatus[appData.systemUserName] = true;
 
-                    // Register process event
-                    theProcess[appData.systemUserName].on('exit', function() {
-                        // Respawn, Unimplemented
-                        logStream.write('app.js EXITED, NO RESPAWNER YET :(\n');
-                        theStatus[appData.systemUserName] = false;
-                    });
+                        // Increment designatedPort
+                        designatedPort++;
 
-                    // Open log file
-                    theProcess[appData.systemUserName].stdout.on('data', function(stream) {
-                        logStream.write('app.js STDOUT: '+ stream.toString() + '\n');
-                    });
+                        logStream.write('Spawning app.js Node application for domain ' + appData.dnsCname + '\n');
 
-                    theProcess[appData.systemUserName].stderr.on('data', function(stream) {
-                        logStream.write('app.js STDERR: '+ stream.toString() + '\n');
-                    });
+                        // Register process event
+                        theProcess[appData.systemUserName].on('exit', function() {
+                            // Respawn, Unimplemented
+                            logStream.write('app.js EXITED, NO RESPAWNER YET :(\n');
+                            theStatus[appData.systemUserName] = false;
+                        });
 
-                    theProcess[appData.systemUserName].on('error', function(err) {
-                        logStream.write('Error happends with app.js: '+ err.toString() + '\n');
-                    });
+                        // Open log file
+                        theProcess[appData.systemUserName].stdout.on('data', function(stream) {
+                            logStream.write('app.js STDOUT: '+ stream.toString() + '\n');
+                        });
 
-                })
-                break;
-        }
+                        theProcess[appData.systemUserName].stderr.on('data', function(stream) {
+                            logStream.write('app.js STDERR: '+ stream.toString() + '\n');
+                        });
+
+                        theProcess[appData.systemUserName].on('error', function(err) {
+                            logStream.write('Error happends with app.js: '+ err.toString() + '\n');
+                        });
+
+                    })
+                    break;
+            }
+        })
+
 
     })
 
@@ -96,7 +114,11 @@ var restartApplication = function(appData) {
 };
 
 var getApplicationStatus = function(appData, callback) {
-    callback(theStatus[appData.systemUserName]);
+    if(theStatus[appData.systemUserName]) {
+        callback(theStatus[appData.systemUserName]);
+    } else {
+        callback(false);
+    }
 };
 
 

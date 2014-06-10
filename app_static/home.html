@@ -2,9 +2,9 @@
     <h1>Dasbor</h1>
     <h2>Daftar Aplikasi</h2>
     <p>
-        <a href="#/buatAplikasi">Buat Aplikasi</a>
+        <a href="#/createApp">Buat Aplikasi</a>
         <ul>
-            <li ng-repeat="app in daftarAplikasi">{{app.systemUserName}} - {{app.applicationType}} - <a href="//{{app.dnsCname}}">{{app.dnsCname}}</a> (<a href="#!/sunting/{{app.systemUserName}}">Sunting</a> | <a href="#!/monitor/{{app.systemUserName}}">Monitor</a>)</li>
+            <li ng-repeat="app in applicationList">{{app.systemUserName}} - {{app.applicationType}} - <a href="//{{app.dnsCname}}">{{app.dnsCname}}</a> (<a href="#!/monitor/{{app.systemUserName}}">Monitor</a>)</li>
         </ul>
     </p>
 </div>

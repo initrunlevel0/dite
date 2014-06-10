@@ -1,0 +1,57 @@
+<div ng-controller="createAppController">
+    <div ng-show="state=='form'">
+        <h1>Buat Aplikasi</h1>
+        <div class="form-group">
+            <label>Nama Aplikasi</label>
+            <input type="text" class="form-control" ng-model="newApp.applicationName"/>
+            <p>Masukkan nama unik aplikasi yang Anda inginkan <i>Contoh: pertamax</i></p>
+        </div>
+        <div class="form-group">
+            <label>Jenis Aplikasi</label>
+            <select ng-options="i.id as i.name for i in applicationType" ng-model="newApp.applicationType" class="form-control"></select>
+            <p>Pilih platform Aplikasi yang akan Anda gunakan dalam aplikasi ini. Opsi ini tidak dapat diubah setelah disimpan.</p>
+        </div>
+        <div class="form-group">
+            <label>Akses Kunci Public SSH</label>
+            <textarea class="form-control" ng-model="newApp.sshPublicKey"></textarea>
+            <p>Kunci akses public SSH pengakses repository GIT. Satu kunci satu baris. Kunci public pengguna biasanya bisa dilihat di berkas ~/.ssh/id_rsa.pub</p>
+        </div>
+        <div class="form-group">
+            <label>Nama Domain Aplikasi</label>
+            <input type="text" class="form-control" ng-model="newApp.dnsCname"/>
+            <p>Masukkan nama domain terdaftar dimana aplikasi akan bersinggah. Pastikan DNS milik Anda sudah diatur untuk mengarahkan alamat tersebut ke IP <strong>laptop.wirama.web.id</strong></p>
+        </div>
+        <button class="btn" ng-click="createApp()">Bangun Aplikasi</button>
+    </div>
+    <div ng-show="state=='create'">
+        <div ng-hide="createdApp">
+            <h1>Silahkan Tunggu...</h1>
+            <h2>Sedang membangun Aplikasi untuk Anda...</h2>
+        </div>
+        <div ng-show='createdApp'>
+            <div ng-show='createdApp.error'>
+                <h1>Semacam Galat Terjadi :(</h1>
+                <h2>Hubungi administrator untuk lebih lanjut</h2>
+                <div class="well">
+                    {{createdApp.error | json}}
+                </div>
+
+            </div>
+            <div ng-hide='createdApp.error'>
+                <h1>{{createdApp.systemUserName}}</h1>
+                <h2>Aplikasi Anda telah dibangun</h1>
+                <p>
+                    Untuk memulai mengunggah aplikasi Anda, silahkan lakukan klon dari repository GIT melalui alamat berikut
+                    <div class="well">
+                    git clone {{createdApp.systemUserName}}@laptop.wirama.web.id:~/app.git
+                    </div>
+                    <ul>
+                        <li><a href="#/">Kembali ke beranda</a></li>
+                        <li><a href="#/monitor/{{createdApp.systemUserName}}">Buka fitur monitoring</a></li>
+                    </ul>
+                </p>
+            </div>
+
+        </div>
+    </div>
+</div>

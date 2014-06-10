@@ -116,11 +116,13 @@ app.get('/api/aplikasi/:appName', function(req, res) {
 });
 
 app.post('/api/aplikasi', function(req, res) {
+    res.setHeader("Content-Type", "application/json");
+
     // Create new application
     var input = req.body;
     appManager.newApplication(req.session.userName, input.applicationName, input.applicationType, input.sshPublicKey, input.dnsCname, function(err, applicationData) {
-        if(err) res.send({error: err});
-        else res.send(applicationData);
+        if(err) res.end(JSON.stringify({error: err}));
+        else res.end(JSON.stringify(applicationData));
     });
 });
 
@@ -133,7 +135,6 @@ app.put('/api/aplikasi', function(req, res) {
 });
 
 // Application Control
-var clientDaemon = net.connect({port:50000});
 app.get('/api/control/:appName/:command', function(req, res) {
     res.setHeader("Content-Type", "application/json");
     database.getUser(req.session.userName, function(err, resultUser) {
@@ -144,9 +145,11 @@ app.get('/api/control/:appName/:command', function(req, res) {
                         cmd: req.params.command,
                         appData: application
                     }
+                    var clientDaemon = net.connect({port:50000});
                     clientDaemon.write(JSON.stringify(command));
                     clientDaemon.on('data', function(data) {
                         res.end(data.toString());
+                        clientDaemon.end();
                     });
                 }
             })
