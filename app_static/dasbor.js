@@ -33,5 +33,28 @@ app.controller('createAppController', function($rootScope, $scope, $http, $locat
     }
 });
 
-app.controller('monitorController', function($rootScope, $scope, $http,$location) {
+app.controller('monitorController', function($rootScope, $scope, $http,$location, $routeParams, $interval) {
+    // Get the application data
+    var appName = $routeParams.appName;
+    $http.get('/api/aplikasi/' + appName).success(function(data) {
+        $scope.application = data;
+        $scope.getAppStatus = function() {
+            $http.get('/api/control/' + appName + '/status').success(function(result) {
+                $scope.application.status = result.result ? "Berjalan": "Berhenti";
+            });
+            $http.get('/api/control/' + appName + '/logapp').success(function(result) {
+                $scope.application.logApp = result;
+            });
+            $http.get('/api/control/' + appName + '/logwebserver').success(function(result) {
+                $scope.application.logWebServer = result;
+            });
+        };
+        $scope.startApp = function() {
+            $http.get('/api/control/' + appName + '/start');
+        };
+        $scope.stopApp = function() {
+            $http.get('/api/control/' + appName + '/stop');
+        };
+        $scope.getAppStatus();
+    })
 });

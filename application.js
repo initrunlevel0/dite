@@ -148,7 +148,10 @@ app.get('/api/control/:appName/:command', function(req, res) {
                     var clientDaemon = net.connect({port:50000});
                     clientDaemon.write(JSON.stringify(command));
                     clientDaemon.on('data', function(data) {
-                        res.end(data.toString());
+                        res.write(data.toString());
+                    });
+                    clientDaemon.on('end', function() {
+                        res.end();
                         clientDaemon.end();
                     });
                 }

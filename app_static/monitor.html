@@ -1,0 +1,18 @@
+<div ng-controller="monitorController">
+    <div ng-show="application">
+        <h2>{{application.systemUserName}} ({{application.applicationType}})</h2>
+        <h3>Status Aplikasi: {{application.status}}</h3>
+        <button class="btn" ng-click="startApp()">Jalankan</button>
+        <button class="btn" ng-click="stopApp()">Hentikan</button>
+        <button class="btn" ng-click="getAppStatus()">Update Status dan Log</button>
+        <h4>Repository Aplikasi (git)</h4>
+        <div class="well">{{application.systemUserName}}@laptop.wirama.web.id:~/app.git</div>
+        <h4>Log aplikasi</h4>
+        <div class="well"><pre>{{application.logApp}}</pre></div>
+        <h4>Log web server</h4>
+        <div class="well"><pre>{{application.logWebServer}}</pre></div>
+    </div>
+    <ul>
+        <li><a href="#/">Kembali ke Dasbor</a></li>
+    </ul>
+</div>

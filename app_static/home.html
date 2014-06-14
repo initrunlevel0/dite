@@ -4,7 +4,7 @@
     <p>
         <a href="#/createApp">Buat Aplikasi</a>
         <ul>
-            <li ng-repeat="app in applicationList">{{app.systemUserName}} - {{app.applicationType}} - <a href="//{{app.dnsCname}}">{{app.dnsCname}}</a> (<a href="#!/monitor/{{app.systemUserName}}">Monitor</a>)</li>
+            <li ng-repeat="app in applicationList">{{app.systemUserName}} - {{app.applicationType}} - <a href="//{{app.dnsCname}}">{{app.dnsCname}}</a> (<a href="#/monitor/{{app.systemUserName}}">Monitor</a>)</li>
         </ul>
     </p>
 </div>

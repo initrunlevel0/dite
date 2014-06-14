@@ -18,7 +18,7 @@ var fs = require('fs');
 var theProcess = {};
 var theStatus = {};
 var designatedPort = 10000;
-var startApplication = function(appData) {
+var startApplication = function(appData, port) {
     var logStream = fs.createWriteStream(__dirname + '/log/' + appData.systemUserName + '.log', { flags: 'w', encoding: 'utf8'});
     logStream.write('Initializing app: ' + appData.systemUserName + '\n');
 
@@ -58,14 +58,11 @@ var startApplication = function(appData) {
                             uid: parseInt(appData.systemUID),
                             gid: parseInt(appData.systemGID),
                             env: {
-                                DITE_PORTNUM: designatedPort
+                                DITE_PORTNUM: port
                             }
                         });
 
                         theStatus[appData.systemUserName] = true;
-
-                        // Increment designatedPort
-                        designatedPort++;
 
                         logStream.write('Spawning app.js Node application for domain ' + appData.dnsCname + '\n');
 
@@ -109,7 +106,8 @@ var stopApplication = function(appData, callback) {
 
 var restartApplication = function(appData) {
     stopApplication(appData, function() {
-        startApplication(appData);
+        designatedPort++;
+        startApplication(appData, designatedPort);
     });
 };
 
@@ -129,7 +127,8 @@ userManager.getAllUsers(function(err, users) {
             // Per application, let's go
             var appData = users[i].applications[j];
             console.log(appData);
-            startApplication(appData);
+            designatedPort++;
+            startApplication(appData, designatedPort);
         }
     }
 });
@@ -141,7 +140,8 @@ var daemonServer = net.createServer(function(sock) {
         console.log('Daemon get command: ' + buf.toString());
         var command = JSON.parse(buf.toString());
         if(command.cmd == "start") {
-            startApplication(command.appData);
+            designatedPort++;
+            startApplication(command.appData, designatedPort);
             sock.write(JSON.stringify({}));
         } else if(command.cmd == "stop") {
             stopApplication(command.appData);
@@ -153,6 +153,12 @@ var daemonServer = net.createServer(function(sock) {
             getApplicationStatus(command.appData, function(result) {
                 sock.write(JSON.stringify({result: result}));
             })
+        } else if(command.cmd == "logapp") {
+            var logStream = fs.createReadStream(__dirname + '/log/' + command.appData.systemUserName + '.log', { encoding: 'utf8'});
+            logStream.pipe(sock);
+        } else if(command.cmd == "logwebserver") {
+            var logStream = fs.createReadStream('/var/log/nginx/' + command.appData.dnsCname, { encoding: 'utf8'});
+            logStream.pipe(sock);
         }
     });
 });
